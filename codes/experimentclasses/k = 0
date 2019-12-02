@@ -1,0 +1,52 @@
+k = 0
+atom4 = atoms4[k, :]
+angles4 = []
+# get identities of triangles on boundary of tetrahedron
+# which atoms3 are in the atoms4...
+actived = [np.where([set(item).issubset(atom4[combos[i, :]]) for item in atoms3])[0][0] for i in range(4)]
+actived = np.asarray(actived, dtype=int)
+ntb2 = np.reshape(tangent_bases[0], (int(x.shape[0] / 3), 3))[actived, :]
+ntb = np.reshape(tangent_bases[0], (int(x.shape[0] / 3), 3))[actived, :]
+
+
+
+
+
+
+np.multiply(experiments[0].dg_x[0,14],tangent_bases[0].transpose()).max()
+
+
+k = 14
+atom4 = atoms4[k, :]
+angles4 = []
+# get identities of triangles on boundary of tetrahedron
+# which atoms3 are in the atoms4...
+actived = [np.where([set(item).issubset(atom4[combos[i, :]]) for item in atoms3])[0][0] for i in range(4)]
+actived = np.asarray(actived, dtype=int)
+naive = np.reshape(x, (int(x.shape[0] / 3), 3))[actived, :]
+for i in range(4):
+    a = atoms3[actived[i]]
+    b = atom4[np.in1d(atom4, atoms3[actived[i]])]
+    for j in range(3):
+        angles4.append(naive[i, np.where(a == b[j])[0]])
+# the jth positEion in the ith row contains the gradient corresponding to the jth position in the truncated atom4
+a4 = np.reshape(angles4, (4, 3))
+# fitin = g4(a4)[1]
+fitin = experiment.gradg4(a4)
+faceindex = np.zeros(4)
+for j in range(4):
+    face = atom4[combos[j]]
+    for i in range(4):
+        if collections.Counter(atoms3[actived][i]) == collections.Counter(face):
+            faceindex[j] = i
+faceindex = np.asarray(faceindex, dtype=int)
+anglerowtooutput = actived[faceindex]
+#print(anglerowtooutput)
+for i in range(4):
+    face = atom4[combos[i]]
+    buffer = np.asarray(scipy.stats.rankdata(face) - 1, dtype=int)
+    for j in range(3):
+        output[3 * anglerowtooutput[i] + buffer[j], k] = fitin[i, j]
+
+
+cosine_similarity(tb_w_tangent_bases[0,:,:], experiments[0].dw_norm[0,:,:])
